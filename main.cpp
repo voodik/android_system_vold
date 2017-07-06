@@ -202,6 +202,9 @@ static void do_coldboot(DIR *d, int lvl) {
         if (de->d_name[0] == '.')
             continue;
 
+        if (!strcmp(de->d_name, "mmcblk0boot0") || !strcmp(de->d_name, "mmcblk0boot1"))
+            continue;
+
         if (de->d_type != DT_DIR && lvl > 0)
             continue;
 
