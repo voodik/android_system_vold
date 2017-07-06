@@ -674,6 +674,23 @@ dev_t GetDevice(const std::string& path) {
 std::string DefaultFstabPath() {
     char hardware[PROPERTY_VALUE_MAX];
     property_get("ro.hardware", hardware, "");
+
+    FILE *fp_mmc = fopen("/sys/bus/platform/drivers/odroid-sysfs/odroid_sysfs.15/boot_mode","r");
+    char boot_mode = 0;
+    fread(&boot_mode, 1, 1, fp_mmc);
+        LOG(WARNING) << "boot_mode " << boot_mode;
+//    SLOGE("boot_mode = %c", boot_mode);
+    fclose(fp_mmc);
+    if (boot_mode == '1') {
+        LOG(WARNING) << "sd boot_mode";
+        return StringPrintf("/fstab.%s.sdboot", hardware);
+//        snprintf(fstab_filename, sizeof(fstab_filename), FSTAB_PREFIX"%s.sdboot", hardware);
+    } else {
+        LOG(WARNING) << "eMMC boot_mode";
+        return StringPrintf("/fstab.%s", hardware);
+//        snprintf(fstab_filename, sizeof(fstab_filename), FSTAB_PREFIX"%s", hardware);
+    }
+
     return StringPrintf("/fstab.%s", hardware);
 }
 
