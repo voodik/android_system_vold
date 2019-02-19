@@ -221,6 +221,7 @@ static int process_config(VolumeManager* vm, bool* has_adoptable, bool* has_quot
         PLOG(ERROR) << "Failed to open default fstab";
         return -1;
     }
+    bool sd_boot = access("/proc/device-tree/emmc@ffe07000/emmc/ignore_mpt", F_OK) == 0;
 
     /* Loop through entries looking for ones that vold manages */
     *has_adoptable = false;
@@ -240,7 +241,7 @@ static int process_config(VolumeManager* vm, bool* has_adoptable, bool* has_quot
         }
 
         if (entry.fs_mgr_flags.vold_managed) {
-            if (entry.fs_mgr_flags.nonremovable) {
+            if (entry.fs_mgr_flags.nonremovable || (sd_boot && (strstr(entry.blk_device.c_str(), "sd/mmc_host") != NULL))) {
                 LOG(WARNING) << "nonremovable no longer supported; ignoring volume";
                 continue;
             }
